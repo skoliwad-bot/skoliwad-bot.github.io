@@ -7,8 +7,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{--navy:#0f2044;--navy-deep:#080f24;--gold:#c9a84c;--gold-light:#e8c96a;--white:#fff;--off:#f5f3ee;}
-body{font-family:Georgia,serif;background:#fff;color:#222;}html{scroll-behavior:smooth;}section[id]{scroll-margin-top:72px;}
-.nav{background:var(--navy-deep);height:72px;border-bottom:2px solid var(--gold);display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:20px;padding:0 28px;}
+body{font-family:Georgia,serif;background:#fff;color:#222;padding-top:72px;}html{scroll-behavior:smooth;}section[id]{scroll-margin-top:72px;}
+.nav{background:var(--navy-deep);height:72px;border-bottom:2px solid var(--gold);display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:20px;padding:0 28px;position:fixed;top:0;left:0;right:0;z-index:1000;}
 .nav-logo{display:flex;align-items:center;gap:14px;}
 .nav-logo img{height:54px;width:auto;display:block;}
 .nav-wordmark{color:#fff;font-size:11px;letter-spacing:.12em;text-transform:uppercase;line-height:1.5;}
