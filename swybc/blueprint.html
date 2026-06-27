@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWYBC — Internal Blueprint</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--navy:#0f2044;--navy-deep:#080f24;--navy-mid:#1a3265;--gold:#c9a84c;--gold-light:#e8c96a;--gold-pale:rgba(201,168,76,0.12);--white:#fff;--off:#f5f3ee;--green:#3d9970;--red:#c0392b;--border:#e0ddd6;}
+body{font-family:Arial,sans-serif;background:var(--off);color:#222;font-size:14px;}
+
+/* TOP BAR */
+.topbar{background:var(--navy-deep);padding:10px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold);position:fixed;top:0;left:0;right:0;z-index:1000;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-logo{height:44px;width:auto;}
+.topbar-title{color:#fff;font-size:13px;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;}
+.topbar-title span{color:var(--gold);display:block;font-size:10px;letter-spacing:.14em;}
+.topbar-badge{background:var(--gold);color:var(--navy-deep);font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;}
+.topbar-date{color:rgba(255,255,255,.45);font-size:11px;}
+
+/* SIDEBAR NAV */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh;padding-top:64px;}
+.sidebar{background:var(--navy);position:fixed;top:64px;left:0;bottom:0;width:220px;overflow-y:auto;border-right:1px solid rgba(201,168,76,.2);padding:20px 0;}
+.sidebar-section{margin-bottom:6px;}
+.sidebar-label{color:rgba(255,255,255,.3);font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:10px 20px 4px;}
+.sidebar a{display:block;padding:8px 20px;color:rgba(255,255,255,.65);font-size:12px;text-decoration:none;border-left:2px solid transparent;transition:all .15s;}
+.sidebar a:hover,.sidebar a.active{color:#fff;background:rgba(201,168,76,.1);border-left-color:var(--gold);}
+
+/* MAIN CONTENT */
+.main{margin-left:220px;padding:32px 36px;max-width:1100px;}
+
+/* SECTION HEADERS */
+.page-section{margin-bottom:48px;}
+.section-header{background:var(--navy);border-left:4px solid var(--gold);border-radius:0 8px 8px 0;padding:18px 24px;margin-bottom:24px;}
+.section-header h2{color:#fff;font-size:20px;font-weight:normal;margin-bottom:4px;}
+.section-header p{color:rgba(255,255,255,.5);font-size:12px;letter-spacing:.04em;}
+.section-tag{display:inline-block;background:var(--gold-pale);border:1px solid rgba(201,168,76,.35);color:var(--gold);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:3px 10px;border-radius:12px;margin-bottom:8px;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:22px 24px;margin-bottom:16px;}
+.card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.card p{font-size:13px;line-height:1.75;color:#444;margin-bottom:10px;}
+.card p:last-child{margin-bottom:0;}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+/* STAT BLOCKS */
+.stat-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 16px;text-align:center;}
+.stat-block .num{font-size:28px;color:var(--navy);line-height:1;margin-bottom:4px;}
+.stat-block .lbl{font-size:11px;color:#888;}
+.stat-block.gold{border-top:3px solid var(--gold);}
+.stat-block.green{border-top:3px solid var(--green);}
+.stat-block.navy{border-top:3px solid var(--navy);}.stat-block.navy .num{color:var(--navy);}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-size:11px;letter-spacing:.06em;font-weight:normal;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:#333;}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:#faf9f7;}
+.td-gold{color:var(--gold);font-weight:700;}
+.td-green{color:var(--green);font-weight:700;}
+.td-red{color:var(--red);}
+.td-right{text-align:right;}
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+
+/* TIMELINE */
+.timeline{margin-top:8px;}
+.tl-item{display:grid;grid-template-columns:140px 16px 1fr;gap:0 16px;margin-bottom:0;}
+.tl-date{text-align:right;font-size:12px;color:#888;padding:12px 0;}
+.tl-line{display:flex;flex-direction:column;align-items:center;}
+.tl-dot{width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid #fff;box-shadow:0 0 0 2px var(--gold);flex-shrink:0;margin-top:14px;}
+.tl-bar{width:2px;background:rgba(201,168,76,.3);flex:1;}
+.tl-content{padding:10px 0 10px;}
+.tl-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.tl-desc{font-size:12px;color:#666;line-height:1.6;}
+.tl-item.done .tl-dot{background:var(--green);}
+.tl-item.done .tl-date,.tl-item.done .tl-title{color:var(--green);}
+.tl-item.hot .tl-dot{background:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.4);}
+
+/* PILLS / TAGS */
+.pill{display:inline-block;font-size:11px;padding:3px 10px;border-radius:12px;margin:2px;}
+.pill-gold{background:var(--gold-pale);border:1px solid rgba(201,168,76,.4);color:#7a5c10;}
+.pill-navy{background:rgba(15,32,68,.1);border:1px solid rgba(15,32,68,.2);color:var(--navy);}
+.pill-green{background:rgba(61,153,112,.1);border:1px solid rgba(61,153,112,.3);color:var(--green);}
+.pill-red{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:var(--red);}
+.pill-gray{background:#f0ede6;border:1px solid #d8d3c8;color:#555;}
+
+/* ALERT BOXES */
+.alert{border-radius:8px;padding:14px 18px;margin-bottom:14px;font-size:13px;line-height:1.65;}
+.alert-gold{background:var(--gold-pale);border:1px solid rgba(201,168,76,.4);color:#6b4e0a;}
+.alert-red{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.3);color:var(--red);}
+.alert-green{background:rgba(61,153,112,.08);border:1px solid rgba(61,153,112,.3);color:#2a6b4e;}
+.alert-navy{background:rgba(15,32,68,.06);border:1px solid rgba(15,32,68,.2);color:var(--navy);}
+.alert strong{display:block;margin-bottom:4px;}
+
+/* PILLAR CARDS */
+.pillar-card{background:var(--navy);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:24px 20px;}
+.pillar-card .ptag{color:var(--gold);font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px;}
+.pillar-card .pname{color:#fff;font-size:18px;margin-bottom:10px;}
+.pillar-card .pdesc{color:rgba(255,255,255,.55);font-size:13px;line-height:1.65;}
+
+/* DIVISION CARDS */
+.div-card{background:var(--navy);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:22px 18px;}
+.div-card .age{color:var(--gold);font-size:32px;line-height:1;margin-bottom:2px;}
+.div-card .div-name{color:rgba(255,255,255,.4);font-size:10px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;}
+.div-card .drow{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:6px;}
+
+/* TRYOUT REGION CARDS */
+.region-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;}
+.region-card .rtag{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px;}
+.region-card .rcity{font-size:15px;color:var(--navy);margin-bottom:4px;}
+.region-card .rdate{font-size:12px;color:#888;margin-bottom:10px;}
+
+/* ENTITY / OWNERSHIP */
+.entity-box{background:var(--navy);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:20px 22px;text-align:center;}
+.entity-box .ename{color:#fff;font-size:15px;margin-bottom:6px;}
+.entity-box .edetail{color:rgba(255,255,255,.5);font-size:12px;line-height:1.6;}
+.entity-box .epct{color:var(--gold);font-size:22px;margin-top:8px;}
+.arrow-down{text-align:center;color:var(--gold);font-size:20px;margin:8px 0;}
+
+/* PARTNER PROSPECT CARD */
+.prospect-card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 20px;}
+.prospect-card .pname{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.prospect-card .prole{font-size:12px;color:var(--gold);margin-bottom:8px;}
+.prospect-card .pdesc{font-size:12px;color:#666;line-height:1.65;}
+
+/* SCHEDULE DAY */
+.day-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.day-header{background:var(--navy);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+.day-header .ddate{color:var(--gold);font-size:13px;font-weight:700;}
+.day-header .dname{color:rgba(255,255,255,.6);font-size:12px;}
+.day-header .dgames{color:#fff;font-size:12px;}
+.day-body{padding:14px 18px;}
+.day-body p{font-size:13px;color:#444;line-height:1.65;margin-bottom:10px;}
+.time-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.time-pill{background:var(--off);border:1px solid var(--border);font-size:11px;color:#333;padding:4px 10px;border-radius:16px;}
+.time-pill.gold{background:var(--gold-pale);border-color:rgba(201,168,76,.4);color:#7a5c10;}
+
+/* FINANCIAL TABLE TOTALS */
+.total-row td{font-weight:700;background:#f5f3ee;border-top:2px solid var(--navy);}
+.subtotal-row td{font-weight:700;color:var(--navy);background:#faf9f7;}
+
+/* CHECKLIST */
+.checklist{list-style:none;margin:0;padding:0;}
+.checklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:#444;line-height:1.55;}
+.checklist li:last-child{border-bottom:none;}
+.check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--gold);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.check.done{background:var(--green);border-color:var(--green);color:#fff;}
+.check.hot{background:var(--gold);border-color:var(--gold);color:var(--navy-deep);}
+
+/* COUNTDOWN */
+.countdown-bar{background:var(--gold);padding:14px 24px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.cd-label{color:var(--navy-deep);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;}
+.cd-units{display:flex;gap:20px;}
+.cunit .num{font-size:26px;font-weight:700;color:var(--navy-deep);line-height:1;}
+.cunit .lbl{font-size:9px;color:rgba(8,15,36,.5);letter-spacing:.12em;text-transform:uppercase;}
+
+/* NATIONAL TEAM */
+.nt-card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:10px;}
+.nt-card .ntitle{font-size:14px;color:var(--navy);margin-bottom:3px;}
+.nt-card .nsub{font-size:12px;color:#888;}
+
+/* REVENUE / EXPENSE SUMMARY */
+.fin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.fin-card{border-radius:10px;padding:20px;text-align:center;}
+.fin-card.rev{background:rgba(61,153,112,.08);border:1px solid rgba(61,153,112,.3);}
+.fin-card.exp{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.2);}
+.fin-card.net{background:var(--gold-pale);border:1px solid rgba(201,168,76,.4);}
+.fin-card .flabel{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#888;margin-bottom:6px;}
+.fin-card .fnum{font-size:28px;}
+.fin-card.rev .fnum{color:var(--green);}
+.fin-card.exp .fnum{color:var(--red);}
+.fin-card.net .fnum{color:#7a5c10;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">SWYBC Internal Blueprint<span>SoCal World Youth Baseball Classic — Confidential</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="topbar-date" id="live-date">Loading...</div>
+    <div class="topbar-badge">&#128274; Confidential</div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Overview</div>
+    <a href="#overview" class="active">Executive Summary</a>
+    <a href="#entity">Entity & Ownership</a>
+    <a href="#pillars">Three Pillars</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Christmas Classic 2026</div>
+    <a href="#event">Event Blueprint</a>
+    <a href="#schedule">4-Day Schedule</a>
+    <a href="#divisions">Divisions</a>
+    <a href="#tryouts">Tryout Plan</a>
+    <a href="#coaching">Coaching</a>
+    <a href="#national-teams">National Teams</a>
+    <a href="#financials">P&L</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">August 2027</div>
+    <a href="#intl">International Classic</a>
+    <a href="#prospects">Future Partners</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Operations</div>
+    <a href="#brand">Brand Architecture</a>
+    <a href="#critical-path">Critical Path</a>
+    <a href="#checklist">Action Checklist</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- COUNTDOWN -->
+<div class="countdown-bar">
+  <div class="cd-label">&#127881; Christmas Classic 2026 countdown</div>
+  <div class="cd-units">
+    <div class="cunit"><div class="num" id="days">--</div><div class="lbl">Days</div></div>
+    <div class="cunit"><div class="num" id="hrs">--</div><div class="lbl">Hours</div></div>
+    <div class="cunit"><div class="num" id="mins">--</div><div class="lbl">Mins</div></div>
+    <div class="cunit"><div class="num" id="secs">--</div><div class="lbl">Secs</div></div>
+  </div>
+  <div style="color:var(--navy-deep);font-size:12px;font-weight:700;">Dec 26–29, 2026 · SoCal D1 Universities</div>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<div class="page-section" id="overview">
+  <div class="section-header">
+    <div class="section-tag">Executive Summary</div>
+    <h2>SWYBC — SoCal World Youth Baseball Classic</h2>
+    <p>Privately owned international youth baseball institution · Founded 2026 · Sole Member: Sonny Koliwad</p>
+  </div>
+
+  <div class="alert alert-gold">
+    <strong>&#9733; The Vision</strong>
+    Build the world's premier international youth baseball institution from the ground up — starting with a Christmas 2026 proof-of-concept in Southern California, scaling to a full 12-nation international classic at Dodger Stadium in August 2027.
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-block gold"><div class="num">3</div><div class="lbl">Institution pillars</div></div>
+    <div class="stat-block gold"><div class="num">24</div><div class="lbl">Teams · Dec 2026</div></div>
+    <div class="stat-block green"><div class="num">$228K</div><div class="lbl">Net pre-tax 2026</div></div>
+    <div class="stat-block navy"><div class="num">Aug '27</div><div class="lbl">International Classic</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>The Strategy — Path B</div>
+    <p>Don't launch small. Build toward the full international event. Use the <strong>Christmas Classic 2026</strong> as a proof-of-concept to validate operations, build relationships, generate real revenue, and create the credibility needed to approach prospective partners and federations before the August 2027 International Classic.</p>
+    <p>The Christmas Classic is also the <strong>only national team tryout</strong> — selection committee evaluates all players across 4 days. Three national teams announced at the Dec 29 closing ceremony. The August 2027 International Classic and Dodger Stadium venue are revealed at the same ceremony.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>Why December 2026 Works</div>
+    <p><strong>Cash flow timing:</strong> Tryout fees ($100/player × 1,296 players = $129,600) collected October/November — the event is cash flow positive before a single Christmas Classic game is played.</p>
+    <p><strong>Kyrin's eligibility window:</strong> Born 6/11/2012. He is 14U through September 1, 2027. The August 2027 International Classic is his last eligible 14U event — the one we're building the entire institution toward.</p>
+    <p><strong>Operational proof:</strong> Running 57 games across 4 days at D1 university facilities proves the operational model to prospective partners, federations, and sponsors before any real capital is committed to the international event.</p>
+  </div>
+</div>
+
+<!-- ============ ENTITY ============ -->
+<div class="page-section" id="entity">
+  <div class="section-header">
+    <div class="section-tag">Legal & Ownership</div>
+    <h2>Entity Structure</h2>
+    <p>Current structure — sole member. Partner conversations happen post-Christmas Classic.</p>
+  </div>
+
+  <div class="alert alert-navy">
+    <strong>Current Status</strong>
+    SWYBC LLC (California) — Sonny Koliwad, sole member. Entity formation and trademark filing targeted July 2026. No partners at this time.
+  </div>
+
+  <div style="max-width:400px;margin:0 auto 24px;">
+    <div class="entity-box">
+      <div class="ename">SWYBC LLC</div>
+      <div class="edetail">California LLC · Formation: July 2026<br>Sole Member: Sonny Koliwad · 100%</div>
+      <div class="epct">100%</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Formation Checklist</div>
+      <ul class="checklist">
+        <li><div class="check hot">!</div>File SWYBC LLC — California Secretary of State (July 2026)</li>
+        <li><div class="check hot">!</div>File trademark — "SWYBC" and "SoCal World Youth Baseball Classic" (July 2026)</li>
+        <li><div class="check hot">!</div>Open business checking account</li>
+        <li><div class="check hot">!</div>Obtain EIN from IRS</li>
+        <li><div class="check hot">!</div>Draft Operating Agreement (sole member)</li>
+        <li><div class="check"></div>Set up Zoho Books instance for SWYBC LLC</li>
+        <li><div class="check"></div>Secure swybc.com or scwybc.com domain</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>IP & Trademark Notes</div>
+      <p><strong>Do not use "Team USA"</strong> — this is a USOPC trademark. All national team references must use <strong>"SWYBC USA National Select"</strong>.</p>
+      <p><strong>Trademarks to file:</strong> SWYBC, SoCal World Youth Baseball Classic, SWYBC USA National Select, World Classic Performance Institute, World Classic Exchange Tours.</p>
+      <p>Dodger Stadium branding is a Dodgers/MLB asset — no use without explicit agreement. "Championship Weekend at Dodger Stadium" language only used internally and in partner conversations, never in public materials until agreement is in place.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PILLARS ============ -->
+<div class="page-section" id="pillars">
+  <div class="section-header">
+    <div class="section-tag">Institution Architecture</div>
+    <h2>Three Pillars</h2>
+    <p>SWYBC operates as a three-pillar institution — each pillar generates independent revenue and feeds the others.</p>
+  </div>
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="pillar-card">
+      <div class="ptag">Pillar I</div>
+      <div class="pname">The Classic</div>
+      <div class="pdesc">Annual international tournament. 14U / 16U / 18U. 12 nations. Pool play at SoCal D1 university facilities. Championship Weekend at Dodger Stadium (2027+). Primary revenue engine and brand builder.</div>
+    </div>
+    <div class="pillar-card">
+      <div class="ptag">Pillar II</div>
+      <div class="pname">WCPI</div>
+      <div class="pdesc">World Classic Performance Institute. Elite Academy programming + Summer Intensives + digital subscription platform for elite youth players. Recurring revenue. Activates year-round between Classic events.</div>
+    </div>
+    <div class="pillar-card">
+      <div class="ptag">Pillar III</div>
+      <div class="pname">WCET</div>
+      <div class="pdesc">World Classic Exchange Tours. USA→Japan outbound tours + inbound Asian national teams. High-margin premium product. Builds international federation relationships needed for the Classic.</div>
+    </div>
+  </div>
+  <div class="alert alert-gold">
+    <strong>2026 Focus</strong>
+    100% of 2026 resources go toward Pillar I — the Christmas Classic. WCPI and WCET are architecture-level decisions for post-Christmas planning. Do not distract from the proof-of-concept.
+  </div>
+</div>
+
+<!-- ============ EVENT BLUEPRINT ============ -->
+<div class="page-section" id="event">
+  <div class="section-header">
+    <div class="section-tag">Christmas Classic 2026</div>
+    <h2>Event Blueprint</h2>
+    <p>December 26–29, 2026 · Southern California D1 University Baseball Facilities</p>
+  </div>
+
+  <div class="alert alert-navy">
+    <strong>Venue Strategy</strong>
+    Christmas Classic 2026 will be hosted across multiple Southern California Division I university baseball facilities. Main stadium used for Championship Day finals across all 3 divisions. Auxiliary fields used for pool play and early bracket rounds. Specific university partnerships TBD — outreach begins August 2026 alongside Brookside permit.
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="stat-block gold"><div class="num">24</div><div class="lbl">Total teams</div></div>
+    <div class="stat-block gold"><div class="num">57</div><div class="lbl">Total games</div></div>
+    <div class="stat-block gold"><div class="num">432</div><div class="lbl">Rostered players</div></div>
+    <div class="stat-block gold"><div class="num">4</div><div class="lbl">Days of play</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Format Overview</div>
+      <ul class="checklist" style="padding:0;">
+        <li><div class="check done">✓</div>3 divisions: 14U, 16U, 18U</li>
+        <li><div class="check done">✓</div>8 teams per division (24 total)</li>
+        <li><div class="check done">✓</div>18 players per team (15 position + 3 pitcher-only)</li>
+        <li><div class="check done">✓</div>2 pools of 4 per division — all 8 teams advance to bracket</li>
+        <li><div class="check done">✓</div>Every team guaranteed minimum 4 games (3 pool + 1 QF)</li>
+        <li><div class="check done">✓</div>Champion plays 6 games</li>
+        <li><div class="check done">✓</div>57 total games across 3 fields</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Field Configuration</div>
+      <p><strong>3 fields total:</strong> Main university diamond (Championship Day) + 2 auxiliary fields (pool play and bracket).</p>
+      <p><strong>Games per day:</strong> 18 games across all fields and divisions simultaneously on Days 1–3. Championship Day runs 3 finals sequentially on main diamond.</p>
+      <p><strong>Pitcher-only roster spots:</strong> 3 per team. Pitcher-only tryout session runs as a separate session at each regional tryout location, after position player tryouts.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCHEDULE ============ -->
+<div class="page-section" id="schedule">
+  <div class="section-header">
+    <div class="section-tag">4-Day Schedule</div>
+    <h2>December 26–29, 2026</h2>
+    <p>Day-by-day game structure and Championship Day timeline</p>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div><div class="ddate">December 26 — Friday</div><div class="dname">Day 1 of 4</div></div>
+      <div class="dgames">18 games</div>
+    </div>
+    <div class="day-body">
+      <p><strong>Pool play — rounds 1 &amp; 2.</strong> All 24 teams open competition. Games run simultaneously across all 3 fields. 6 games per division across 2 rounds.</p>
+      <div class="time-row">
+        <span class="time-pill">All 3 fields active</span>
+        <span class="time-pill">All 3 divisions</span>
+        <span class="time-pill">18 total games</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div><div class="ddate">December 27 — Saturday</div><div class="dname">Day 2 of 4</div></div>
+      <div class="dgames">18 games</div>
+    </div>
+    <div class="day-body">
+      <p><strong>Pool play — round 3.</strong> Final pool play games. All teams complete 3 pool games. Seeding finalized. All 24 teams advance to single-elimination bracket regardless of record.</p>
+      <div class="time-row">
+        <span class="time-pill">18 total games</span>
+        <span class="time-pill">Seeding finalized</span>
+        <span class="time-pill">All 24 teams advance</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div><div class="ddate">December 28 — Sunday</div><div class="dname">Day 3 of 4</div></div>
+      <div class="dgames">18 games</div>
+    </div>
+    <div class="day-body">
+      <p><strong>Quarterfinals + semifinals.</strong> Single-elimination bracket begins. Top 2 seeds from each pool advance. 4 QF games + 2 SF games per division = 18 games total. All 3 division finals set for Championship Day.</p>
+      <div class="time-row">
+        <span class="time-pill">Quarterfinals</span>
+        <span class="time-pill">Semifinals</span>
+        <span class="time-pill">18 total games</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header" style="background:var(--gold);">
+      <div><div class="ddate" style="color:var(--navy-deep);">December 29 — Monday</div><div class="dname" style="color:rgba(8,15,36,.6);">Championship Day</div></div>
+      <div class="dgames" style="color:var(--navy-deep);">3 Finals + Ceremony</div>
+    </div>
+    <div class="day-body">
+      <p><strong>All three division finals on the main university diamond.</strong> Staggered start times. National team selections announced at closing ceremony. August 2027 International Classic and Dodger Stadium revealed.</p>
+      <div class="time-row">
+        <span class="time-pill">10:00am — 14U Championship Final</span>
+        <span class="time-pill">1:00pm — 16U Championship Final</span>
+        <span class="time-pill">4:00pm — 18U Championship Final</span>
+        <span class="time-pill gold">6:30pm — Closing Ceremony + National Team Announcement</span>
+        <span class="time-pill gold">6:30pm — August 2027 International Classic Reveal</span>
+        <span class="time-pill gold">6:30pm — Dodger Stadium Announcement</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DIVISIONS ============ -->
+<div class="page-section" id="divisions">
+  <div class="section-header">
+    <div class="section-tag">Divisions</div>
+    <h2>Age Divisions &amp; Roster Structure</h2>
+    <p>Three divisions · 8 teams each · 18 players per team</p>
+  </div>
+  <div class="grid-3" style="margin-bottom:16px;">
+    <div class="div-card">
+      <div class="age">14U</div>
+      <div class="div-name">Junior Division</div>
+      <div class="drow">8 teams · 18 players each = 144 players</div>
+      <div class="drow">15 position + 3 pitcher-only per team</div>
+      <div class="drow">2 pools of 4 · Min. 4 guaranteed games</div>
+      <div class="drow">National Select eligible · Aug 2027 International Classic</div>
+    </div>
+    <div class="div-card">
+      <div class="age">16U</div>
+      <div class="div-name">Intermediate Division</div>
+      <div class="drow">8 teams · 18 players each = 144 players</div>
+      <div class="drow">15 position + 3 pitcher-only per team</div>
+      <div class="drow">2 pools of 4 · Min. 4 guaranteed games</div>
+      <div class="drow">National Select eligible · Aug 2027 International Classic</div>
+    </div>
+    <div class="div-card">
+      <div class="age">18U</div>
+      <div class="div-name">Senior Division</div>
+      <div class="drow">8 teams · 18 players each = 144 players</div>
+      <div class="drow">15 position + 3 pitcher-only per team</div>
+      <div class="drow">2 pools of 4 · Min. 4 guaranteed games</div>
+      <div class="drow">National Select eligible · Aug 2027 International Classic</div>
+    </div>
+  </div>
+  <div class="alert alert-gold">
+    <strong>Kyrin Koliwad — 14U Eligibility Note</strong>
+    Born 6/11/2012. Kyrin is 14U through September 1, 2027. The August 2027 International Classic is his last eligible 14U event. The entire 2026 proof-of-concept is built around creating the platform for that moment.
+  </div>
+</div>
+
+<!-- ============ TRYOUTS ============ -->
+<div class="page-section" id="tryouts">
+  <div class="section-header">
+    <div class="section-tag">Tryout Plan</div>
+    <h2>Regional Tryouts — October / November 2026</h2>
+    <p>5 regions · 1,296 tryout players targeted · $100 flat fee · Cash flow positive before December</p>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-block gold"><div class="num">5</div><div class="lbl">Regional locations</div></div>
+    <div class="stat-block gold"><div class="num">1,296</div><div class="lbl">Target tryout players</div></div>
+    <div class="stat-block green"><div class="num">$129,600</div><div class="lbl">Tryout revenue</div></div>
+    <div class="stat-block navy"><div class="num">3:1</div><div class="lbl">Tryout-to-roster ratio</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title"><div class="dot"></div>Tryout Format</div>
+    <p>Each regional location runs <strong>all 3 divisions back to back in a single day</strong>. Pitcher-only session runs as a separate session after position player tryouts at each location. Fee is $100/player flat — collected at registration, paid before the event.</p>
+    <p>Rosters announced <strong>November 2026</strong> — giving selected players time to prepare for December.</p>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:16px;">
+    <div class="region-card">
+      <div class="rtag">Region 1</div>
+      <div class="rcity">Southern California</div>
+      <div class="rdate">October 2026 — TBD</div>
+      <span class="pill pill-gold">14U · 16U · 18U</span>
+      <span class="pill pill-gray">Pitcher-only session</span>
+    </div>
+    <div class="region-card">
+      <div class="rtag">Region 2</div>
+      <div class="rcity">Northern California</div>
+      <div class="rdate">October 2026 — TBD</div>
+      <span class="pill pill-gold">14U · 16U · 18U</span>
+      <span class="pill pill-gray">Pitcher-only session</span>
+    </div>
+    <div class="region-card">
+      <div class="rtag">Region 3</div>
+      <div class="rcity">Midwest</div>
+      <div class="rdate">October 2026 — TBD</div>
+      <span class="pill pill-gold">14U · 16U · 18U</span>
+      <span class="pill pill-gray">Pitcher-only session</span>
+    </div>
+    <div class="region-card">
+      <div class="rtag">Region 4</div>
+      <div class="rcity">South — Florida / Texas</div>
+      <div class="rdate">November 2026 — TBD</div>
+      <span class="pill pill-gold">14U · 16U · 18U</span>
+      <span class="pill pill-gray">Pitcher-only session</span>
+    </div>
+    <div class="region-card">
+      <div class="rtag">Region 5</div>
+      <div class="rcity">East — New York / Mid-Atlantic</div>
+      <div class="rdate">November 2026 — TBD</div>
+      <span class="pill pill-gold">14U · 16U · 18U</span>
+      <span class="pill pill-gray">Pitcher-only session</span>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Region</th><th>Location</th><th>Timing</th><th class="td-right">Target Players</th><th class="td-right">Revenue</th></tr>
+      <tr><td>1</td><td>Southern California</td><td>October 2026</td><td class="td-right">300</td><td class="td-right td-green">$30,000</td></tr>
+      <tr><td>2</td><td>Northern California</td><td>October 2026</td><td class="td-right">200</td><td class="td-right td-green">$20,000</td></tr>
+      <tr><td>3</td><td>Midwest</td><td>October 2026</td><td class="td-right">250</td><td class="td-right td-green">$25,000</td></tr>
+      <tr><td>4</td><td>South — Florida / Texas</td><td>November 2026</td><td class="td-right">296</td><td class="td-right td-green">$29,600</td></tr>
+      <tr><td>5</td><td>East — NY / Mid-Atlantic</td><td>November 2026</td><td class="td-right">250</td><td class="td-right td-green">$25,000</td></tr>
+      <tr class="total-row"><td colspan="3"><strong>Total</strong></td><td class="td-right td-gold"><strong>1,296</strong></td><td class="td-right td-gold"><strong>$129,600</strong></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============ COACHING ============ -->
+<div class="page-section" id="coaching">
+  <div class="section-header">
+    <div class="section-tag">Coaching Operations</div>
+    <h2>Coaching Structure</h2>
+    <p>All local coaches — zero travel or hotel costs</p>
+  </div>
+  <div class="alert alert-green">
+    <strong>Key Cost Advantage</strong>
+    All coaches are locally sourced. No flights, no hotels. This is a significant budget lever that keeps coaching costs predictable and eliminates travel risk.
+  </div>
+  <div class="grid-2">
+    <div class="table-wrap">
+      <table>
+        <tr><th>Role</th><th class="td-right">Count</th><th class="td-right">Rate</th><th class="td-right">Total</th></tr>
+        <tr><td>Head Coaches</td><td class="td-right">24</td><td class="td-right">$800</td><td class="td-right td-gold">$19,200</td></tr>
+        <tr><td>Assistant Coaches</td><td class="td-right">48</td><td class="td-right">$500</td><td class="td-right td-gold">$24,000</td></tr>
+        <tr><td>Per Diem ($50/day × 4 days)</td><td class="td-right">72</td><td class="td-right">$200</td><td class="td-right td-gold">$14,400</td></tr>
+        <tr class="total-row"><td colspan="3"><strong>Total Coaching Cost</strong></td><td class="td-right td-gold"><strong>$57,600</strong></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Coaching Assignments</div>
+      <p><strong>24 head coaches</strong> — one per team. Assigned by SWYBC. Selected from local college, high school, and travel ball programs in SoCal.</p>
+      <p><strong>48 assistant coaches</strong> — two per team. Supporting roles: pitching coordination, base coaching, player management during games.</p>
+      <p>All coaches sign SWYBC coaching agreement. Code of conduct, uniform standards, and communication protocols required before event.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NATIONAL TEAMS ============ -->
+<div class="page-section" id="national-teams">
+  <div class="section-header">
+    <div class="section-tag">National Team Selection</div>
+    <h2>SWYBC USA National Select Teams</h2>
+    <p>The Christmas Classic IS the only tryout. No separate February event.</p>
+  </div>
+
+  <div class="alert alert-red">
+    <strong>&#9888; Critical Branding Rule</strong>
+    Never use "Team USA" — this is a USOPC trademark. All national team references must use "SWYBC USA National Select" exclusively. Violating this creates legal exposure before the institution is established.
+  </div>
+
+  <div class="grid-3" style="margin-bottom:16px;">
+    <div class="nt-card"><div class="ntitle">SWYBC USA National Select — 14U</div><div class="nsub">18 players · Selected Dec 29, 2026 · Compete Aug 2027 International Classic</div></div>
+    <div class="nt-card"><div class="ntitle">SWYBC USA National Select — 16U</div><div class="nsub">18 players · Selected Dec 29, 2026 · Compete Aug 2027 International Classic</div></div>
+    <div class="nt-card"><div class="ntitle">SWYBC USA National Select — 18U</div><div class="nsub">18 players · Selected Dec 29, 2026 · Compete Aug 2027 International Classic</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Selection Process</div>
+      <p>The selection committee evaluates every player across all 4 days and 4–6 games at the Christmas Classic. No separate tryout. No separate camp. The Christmas Classic itself is the audition.</p>
+      <p><strong>Selection committee:</strong> SWYBC-appointed coaches and evaluators. Criteria include performance metrics, coachability, character, and potential for international competition.</p>
+      <p><strong>54 players total selected</strong> — 18 per age group. Announced live at the December 29 closing ceremony.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Closing Ceremony — Dec 29, 6:30pm</div>
+      <p>The closing ceremony is a major institutional moment. Three announcements made simultaneously:</p>
+      <p><strong>1.</strong> SWYBC USA National Select teams announced — 54 players called by name on the main diamond.</p>
+      <p><strong>2.</strong> August 2027 International Classic revealed — 12-nation field, full format, schedule preview.</p>
+      <p><strong>3.</strong> Dodger Stadium announced as 2027 Championship Weekend venue.</p>
+      <p>This ceremony is the marketing engine for everything that follows. Video, social, press.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FINANCIALS ============ -->
+<div class="page-section" id="financials">
+  <div class="section-header">
+    <div class="section-tag">Christmas Classic 2026 — P&amp;L</div>
+    <h2>Financial Model</h2>
+    <p>Confidential — internal use only</p>
+  </div>
+
+  <div class="fin-summary">
+    <div class="fin-card rev"><div class="flabel">Total gross revenue</div><div class="fnum">$414,740</div></div>
+    <div class="fin-card exp"><div class="flabel">Total expenses</div><div class="fnum">$185,734</div></div>
+    <div class="fin-card net"><div class="flabel">Net pre-tax</div><div class="fnum">$228,006</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="table-wrap">
+        <table>
+          <tr><th colspan="2">Revenue</th></tr>
+          <tr><td>Tryout fees (1,296 × $100)</td><td class="td-right td-green">$129,600</td></tr>
+          <tr><td>Program fees (432 × $300)</td><td class="td-right td-green">$129,600</td></tr>
+          <tr><td>Gate (4 days blended)</td><td class="td-right td-green">$70,500</td></tr>
+          <tr><td>Sponsorship</td><td class="td-right td-green">$52,000</td></tr>
+          <tr><td>Merchandise (net)</td><td class="td-right td-green">$18,100</td></tr>
+          <tr><td>F&amp;B commission (20%)</td><td class="td-right td-green">$10,440</td></tr>
+          <tr><td>Miscellaneous</td><td class="td-right td-green">$4,500</td></tr>
+          <tr class="total-row"><td><strong>Total Gross Revenue</strong></td><td class="td-right td-gold"><strong>$414,740</strong></td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="table-wrap">
+        <table>
+          <tr><th colspan="2">Expenses</th></tr>
+          <tr><td>Venue</td><td class="td-right td-red">$19,300</td></tr>
+          <tr><td>Umpires</td><td class="td-right td-red">$9,990</td></tr>
+          <tr><td>Staffing</td><td class="td-right td-red">$15,560</td></tr>
+          <tr><td>Coaching (all local)</td><td class="td-right td-red">$57,600</td></tr>
+          <tr><td>Tryout operations</td><td class="td-right td-red">$19,000</td></tr>
+          <tr><td>Player experience</td><td class="td-right td-red">$28,701</td></tr>
+          <tr><td>Marketing</td><td class="td-right td-red">$18,000</td></tr>
+          <tr><td>Insurance &amp; legal</td><td class="td-right td-red">$5,000</td></tr>
+          <tr><td>Misc &amp; contingency</td><td class="td-right td-red">$12,583</td></tr>
+          <tr class="total-row"><td><strong>Total Expenses</strong></td><td class="td-right td-red"><strong>$185,734</strong></td></tr>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <tr><th colspan="2">Net Summary</th></tr>
+          <tr><td>Net Pre-Tax</td><td class="td-right td-gold"><strong>$228,006</strong></td></tr>
+          <tr><td>Tax (~30%)</td><td class="td-right td-red">($68,402)</td></tr>
+          <tr class="total-row"><td><strong>Net After Tax</strong></td><td class="td-right td-green"><strong>~$159,604</strong></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-green">
+    <strong>Cash Flow Note</strong>
+    Tryout fees ($129,600) collected October/November 2026. The event reaches cash flow positive before a single Christmas Classic game is played. Program fees ($129,600) collected at roster announcement in November. Gate, F&B, and merch are the only December-dependent revenue lines.
+  </div>
+</div>
+
+<!-- ============ INTERNATIONAL CLASSIC ============ -->
+<div class="page-section" id="intl">
+  <div class="section-header">
+    <div class="section-tag">August 2027</div>
+    <h2>SWYBC International Classic</h2>
+    <p>The main event. 8–12 nations. Dodger Stadium Championship Weekend.</p>
+  </div>
+
+  <div class="alert alert-navy">
+    <strong>Strategic Context</strong>
+    The Christmas Classic 2026 exists entirely to build the proof-of-concept, relationships, and credibility needed to execute the August 2027 International Classic. Everything in 2026 feeds 2027.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Event Structure</div>
+      <p><strong>Format:</strong> 8–12 nations, 3 divisions (14U / 16U / 18U). Pool play at SoCal D1 university facilities. Championship Weekend finals at Dodger Stadium.</p>
+      <p><strong>US representation:</strong> SWYBC USA National Select teams (selected at Dec 29 ceremony) compete as US representatives in all three divisions.</p>
+      <p><strong>International field:</strong> Mexico, Dominican Republic, Venezuela, Panama reachable via COPABE without partner assistance. Japan and Chinese Taipei via Extra Innings Travel / japanball.com.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Federation Outreach Timeline</div>
+      <p><strong>COPABE</strong> (Mexico, DR, Venezuela, Panama, Puerto Rico, Cuba, Canada) — outreach begins January 2027 post-Christmas Classic.</p>
+      <p><strong>BFJ</strong> (Baseball Federation of Japan) — outreach via Extra Innings Travel / japanball.com. January 2027.</p>
+      <p><strong>KBSA</strong> (Korea Baseball Softball Association) — January 2027.</p>
+      <p>International teams confirmed target: March/April 2027. Full operations prep: May/June 2027.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>Dodger Stadium — Championship Weekend</div>
+    <p>All three division finals (14U, 16U, 18U) held at Dodger Stadium. Closing ceremony on the field. This is the institutional signature moment that no other youth baseball organization can replicate.</p>
+    <p><strong>Access strategy:</strong> The conversation to secure Dodger Stadium happens through Andrew Friedman (President, Baseball Operations) — approached as a <em>dad conversation</em>, not a formal business pitch. Andrew's son and Kyrin are both 14U in 2027. This is a personal relationship play. The formal agreement and Dodger legal review follow after the relationship is established.</p>
+    <p class="pill pill-red" style="display:inline-block;margin-top:4px;">Do not use Dodger Stadium branding publicly until agreement is in place.</p>
+  </div>
+</div>
+
+<!-- ============ FUTURE PARTNERS ============ -->
+<div class="page-section" id="prospects">
+  <div class="section-header">
+    <div class="section-tag">Future Partner Prospects</div>
+    <h2>Post-Christmas Partner Conversations</h2>
+    <p>Neither individual is a current partner. Conversations happen after the Christmas Classic proves the model.</p>
+  </div>
+
+  <div class="alert alert-gold">
+    <strong>Critical Framing</strong>
+    Brandon McDaniel and Andrew Friedman are prospective future partners — not current partners, not named partners, not announced in any materials. Their involvement is contingent on the Christmas Classic delivering proof of concept and their own outside activity approvals from the Dodgers organization. All external materials reflect Sonny Koliwad as sole member only.
+  </div>
+
+  <div class="grid-2">
+    <div class="prospect-card">
+      <div class="pname">Brandon McDaniel</div>
+      <div class="prole">VP Player Performance, Los Angeles Dodgers</div>
+      <div class="pdesc">
+        <p style="margin-bottom:8px;"><strong>Relationship:</strong> Existing relationship. Dad conversation approach — not a formal pitch. Gauge interest in post-Christmas involvement.</p>
+        <p style="margin-bottom:8px;"><strong>Value to SWYBC:</strong> Player performance expertise, Dodger internal access, credibility in elite baseball development circles, potential Dodger Stadium facilitation.</p>
+        <p style="margin-bottom:8px;"><strong>Timing:</strong> July/August 2026 — initial dad conversation to gauge interest. Formal structure conversation post-Christmas Classic.</p>
+        <p><strong>Requirement:</strong> Dodger GC outside activity approval required before any formal agreement. This is a Dodgers employment compliance issue — do not ask him to commit before he has clearance.</p>
+      </div>
+    </div>
+    <div class="prospect-card">
+      <div class="pname">Andrew Friedman</div>
+      <div class="prole">President, Baseball Operations, Los Angeles Dodgers</div>
+      <div class="pdesc">
+        <p style="margin-bottom:8px;"><strong>Relationship:</strong> Dad conversation entry point. Andrew's son and Kyrin are both 14U in 2027 — natural shared interest in the platform being built for their kids.</p>
+        <p style="margin-bottom:8px;"><strong>Value to SWYBC:</strong> Dodger Stadium access, highest-level baseball operations credibility, institutional legitimacy, potential national/international connections.</p>
+        <p style="margin-bottom:8px;"><strong>Timing:</strong> July/August 2026 — dad conversation only. No formal pitch until Christmas Classic proof-of-concept is complete.</p>
+        <p><strong>Requirement:</strong> Dodger GC outside activity approval required. Deferred Profit Interest Agreement template available if needed as a structure that works within compliance constraints.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>Target Partner Structure (Post-Christmas — If Both Approve)</div>
+    <p>If both Brandon and Andrew receive Dodger GC clearance and choose to participate after the Christmas Classic, the target structure is equal thirds: <strong>Sonny Koliwad 33.3% / Brandon McDaniel 33.3% / Andrew Friedman 33.3%.</strong></p>
+    <p>This requires amendment to the SWYBC LLC Operating Agreement and new contribution/vesting agreements. All documents drafted and ready — not executed until the right time.</p>
+  </div>
+</div>
+
+<!-- ============ BRAND ============ -->
+<div class="page-section" id="brand">
+  <div class="section-header">
+    <div class="section-tag">Brand Architecture</div>
+    <h2>Brand Rules &amp; Identity</h2>
+    <p>SWYBC is a completely standalone brand. Clean separation from all other ventures.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Brand Do's</div>
+      <ul class="checklist">
+        <li><div class="check done">✓</div>Use "SWYBC" as the primary abbreviation</li>
+        <li><div class="check done">✓</div>Use "SoCal World Youth Baseball Classic" as the full name</li>
+        <li><div class="check done">✓</div>Use "SWYBC USA National Select" for national teams</li>
+        <li><div class="check done">✓</div>Colors: Navy (#0f2044) + Gold (#c9a84c) + White</li>
+        <li><div class="check done">✓</div>Tagline: "National Teams. Elite Competition. Future Stars."</li>
+        <li><div class="check done">✓</div>Keep SWYBC completely separate from Flintridge Holdings, MBK, EYI, Throwzone</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Brand Don'ts</div>
+      <ul class="checklist">
+        <li><div class="check hot">✗</div>Never use "Team USA" — USOPC trademark</div></li>
+        <li><div class="check hot">✗</div>Never use Dodger Stadium branding publicly until agreement signed</li>
+        <li><div class="check hot">✗</div>Never reference EYI, Throwzone, or MBK in SWYBC materials</li>
+        <li><div class="check hot">✗</div>Never reference Brandon or Andrew as partners in any materials</li>
+        <li><div class="check hot">✗</div>Never use "SCWYBC" — the correct abbreviation is "SWYBC"</li>
+        <li><div class="check hot">✗</div>Do not co-brand Knights Knation on tournament materials</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CRITICAL PATH ============ -->
+<div class="page-section" id="critical-path">
+  <div class="section-header">
+    <div class="section-tag">Critical Path</div>
+    <h2>Now → Christmas 2026 → August 2027</h2>
+    <p>Every milestone that must hit for the institution to launch on time</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item hot">
+      <div class="tl-date">July 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">&#128293; SWYBC LLC Formation + Trademark Filing</div><div class="tl-desc">File California LLC. File trademarks for SWYBC, SoCal World Youth Baseball Classic, SWYBC USA National Select. Open bank account, obtain EIN.</div></div>
+    </div>
+    <div class="tl-item hot">
+      <div class="tl-date">July / Aug 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">&#128293; Dad Conversations — Brandon &amp; Andrew</div><div class="tl-desc">Casual dad conversations only. Gauge interest in the concept. Do not pitch. Do not discuss equity. No materials shared. Just plant the seed.</div></div>
+    </div>
+    <div class="tl-item hot">
+      <div class="tl-date">August 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">&#128293; SoCal D1 University Venue Outreach</div><div class="tl-desc">Contact athletic departments at target SoCal D1 universities. Secure facility agreements for Dec 26–29, 2026. Main diamond + auxiliary fields. Begin sponsorship outreach in parallel.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">September 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">Tryout Marketing Launch</div><div class="tl-desc">Public website live. Social media launched. Tryout registration opens. Target: 1,296 players across 5 regions. $100 registration fee collected at signup.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">Oct / Nov 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">Regional Tryouts — 5 Locations</div><div class="tl-desc">SoCal, NorCal, Midwest, South (FL/TX), East (NY/Mid-Atlantic). All 3 divisions per location. Pitcher-only session at each. $129,600 collected. Cash flow positive.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">November 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">Christmas Classic Rosters Announced</div><div class="tl-desc">432 players notified of selection. Program fees ($300/player = $129,600) collected. Full event confirmed. Sponsor commitments finalized.</div></div>
+    </div>
+    <div class="tl-item hot">
+      <div class="tl-date">Dec 26–29, 2026</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">&#127881; SWYBC Christmas Classic 2026</div><div class="tl-desc">57 games. 432 players. 3 divisions. SoCal D1 university facilities. Championship Day finals December 29. National teams announced at closing ceremony. August 2027 International Classic revealed. Dodger Stadium announced.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">January 2027</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">Federation Outreach Begins</div><div class="tl-desc">COPABE (Mexico, DR, Venezuela, Panama, PR, Cuba, Canada). BFJ (Japan). KBSA (Korea). Armed with Christmas Classic proof-of-concept footage and results.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">Jan / Feb 2027</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">Sponsor Pitches — Title + Associates</div><div class="tl-desc">Armed with Christmas Classic data and Dodger Stadium announcement, approach title sponsor and associate sponsor categories. Target $250K+ in sponsorship for August 2027 event.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">March / April 2027</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">International Teams Confirmed</div><div class="tl-desc">8–12 nations committed. Travel, housing, and logistics agreements in place. Format and bracket finalized.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">May / June 2027</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">Full Operations Prep</div><div class="tl-desc">Venue logistics, credential operations, media setup, Dodger Stadium coordination, hospitality, national team prep and travel logistics.</div></div>
+    </div>
+    <div class="tl-item hot">
+      <div class="tl-date">August 2027</div>
+      <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+      <div class="tl-content"><div class="tl-title">&#127881; SWYBC International Classic 2027</div><div class="tl-desc">8–12 nations. 3 divisions. Pool play at SoCal D1 facilities. Championship Weekend at Dodger Stadium. Kyrin's last eligible 14U event. The moment the entire institution was built toward.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHECKLIST ============ -->
+<div class="page-section" id="checklist">
+  <div class="section-header">
+    <div class="section-tag">Action Checklist</div>
+    <h2>Immediate Actions — July 2026</h2>
+    <p>Everything that needs to happen in the next 30–60 days</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Legal &amp; Formation</div>
+      <ul class="checklist">
+        <li><div class="check hot">!</div>File SWYBC LLC — California Secretary of State</li>
+        <li><div class="check hot">!</div>Obtain EIN from IRS</li>
+        <li><div class="check hot">!</div>File trademark — "SWYBC" (USPTO)</li>
+        <li><div class="check hot">!</div>File trademark — "SoCal World Youth Baseball Classic"</li>
+        <li><div class="check hot">!</div>File trademark — "SWYBC USA National Select"</li>
+        <li><div class="check hot">!</div>Draft and execute sole-member Operating Agreement</li>
+        <li><div class="check hot">!</div>Open SWYBC LLC business checking account</li>
+        <li><div class="check"></div>Secure swybc.com domain</li>
+        <li><div class="check"></div>Set up Zoho Books — SWYBC LLC instance</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Relationships &amp; Venues</div>
+      <ul class="checklist">
+        <li><div class="check hot">!</div>Dad conversation — Brandon McDaniel (July/Aug 2026)</li>
+        <li><div class="check hot">!</div>Dad conversation — Andrew Friedman (July/Aug 2026)</li>
+        <li><div class="check hot">!</div>Identify target SoCal D1 university facilities</li>
+        <li><div class="check hot">!</div>Contact athletic departments — Dec 26–29 availability</li>
+        <li><div class="check"></div>Negotiate facility agreements — main diamond + aux fields</li>
+        <li><div class="check"></div>Identify and contact regional tryout facility partners</li>
+        <li><div class="check"></div>Begin title sponsor outreach pipeline</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Marketing &amp; Digital</div>
+      <ul class="checklist">
+        <li><div class="check done">✓</div>Public website mockup complete (skoliwad-bot.github.io/swybc)</li>
+        <li><div class="check done">✓</div>Logo designed (vector production version needed)</li>
+        <li><div class="check hot">!</div>Vectorize logo for production use</li>
+        <li><div class="check hot">!</div>Register swybc.com and point to live site</li>
+        <li><div class="check"></div>Launch social accounts (Instagram, Twitter/X, YouTube)</li>
+        <li><div class="check"></div>Build tryout registration platform</li>
+        <li><div class="check"></div>September 2026 — marketing launch campaign</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Operations</div>
+      <ul class="checklist">
+        <li><div class="check"></div>Source and vet 24 local head coaches (SoCal)</li>
+        <li><div class="check"></div>Source and vet 48 local assistant coaches</li>
+        <li><div class="check"></div>Hire event director and ops staff</li>
+        <li><div class="check"></div>Secure event insurance policy</li>
+        <li><div class="check"></div>Engage umpire organization for 57-game schedule</li>
+        <li><div class="check"></div>Set up GameChanger or equivalent for live scoring</li>
+        <li><div class="check"></div>Vendor agreements — merchandise, F&amp;B</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+</div><!-- end layout -->
+
+<script>
+// Smooth scroll nav
+document.querySelectorAll('.sidebar a').forEach(function(a){
+  a.addEventListener('click', function(e){
+    var target = document.querySelector(this.getAttribute('href'));
+    if(target){
+      e.preventDefault();
+      document.querySelectorAll('.sidebar a').forEach(function(x){x.classList.remove('active');});
+      this.classList.add('active');
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+});
+
+// Live date
+document.getElementById('live-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+
+// Countdown
+function tick(){
+  var t=new Date('2026-12-26T08:00:00-08:00'),n=new Date(),d=t-n;
+  if(d<=0){['days','hrs','mins','secs'].forEach(function(id){document.getElementById(id).textContent='0';});return;}
+  document.getElementById('days').textContent=Math.floor(d/86400000);
+  document.getElementById('hrs').textContent=Math.floor((d%86400000)/3600000);
+  document.getElementById('mins').textContent=Math.floor((d%3600000)/60000);
+  document.getElementById('secs').textContent=Math.floor((d%60000)/1000);
+}
+tick();setInterval(tick,1000);
+</script>
+</body>
+</html>
