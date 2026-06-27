@@ -153,12 +153,7 @@ tr:nth-child(even) td{background:#faf9f7;}
 .check.done{background:var(--green);border-color:var(--green);color:#fff;}
 .check.hot{background:var(--gold);border-color:var(--gold);color:var(--navy-deep);}
 
-/* COUNTDOWN */
-.countdown-bar{background:var(--gold);padding:14px 24px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-.cd-label{color:var(--navy-deep);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;}
-.cd-units{display:flex;gap:20px;}
-.cunit .num{font-size:26px;font-weight:700;color:var(--navy-deep);line-height:1;}
-.cunit .lbl{font-size:9px;color:rgba(8,15,36,.5);letter-spacing:.12em;text-transform:uppercase;}
+
 
 /* NATIONAL TEAM */
 .nt-card{background:#fff;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:10px;}
@@ -176,6 +171,35 @@ tr:nth-child(even) td{background:#faf9f7;}
 .fin-card.rev .fnum{color:var(--green);}
 .fin-card.exp .fnum{color:var(--red);}
 .fin-card.net .fnum{color:#7a5c10;}
+
+@media (max-width: 768px) {
+  .topbar{padding:0 16px;}
+  .topbar-date{display:none;}
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{margin-left:0;padding:20px 16px;}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .pillars{grid-template-columns:1fr;}
+  .divs{grid-template-columns:1fr;}
+  .fin-summary{grid-template-columns:1fr;}
+  .sponsor-strip{grid-template-columns:1fr;}
+  .nt-grid{grid-template-columns:1fr;}
+  .tl-item{grid-template-columns:80px 16px 1fr;}
+  .tl-date{font-size:11px;}
+  table{font-size:12px;}
+  th,td{padding:8px 10px;}
+  .section-header h2{font-size:17px;}
+  .stat-block .num{font-size:22px;}
+  .topbar-title{font-size:11px;}
+  .day-body p{font-size:12px;}
+  .time-row{gap:6px;}
+  .time-pill{font-size:10px;padding:3px 8px;}
+  .alert{font-size:12px;}
+  .card p{font-size:12px;}
+  .checklist li{font-size:12px;}
+  .prospect-card .pdesc p{font-size:12px;}
+}
+
 </style>
 </head>
 <body>
@@ -228,9 +252,6 @@ tr:nth-child(even) td{background:#faf9f7;}
 <!-- MAIN -->
 <div class="main">
 
-<!-- COUNTDOWN -->
-<div class="countdown-bar">
-  <div class="cd-label">&#127881; Christmas Classic 2026 countdown</div>
   <div class="cd-units">
     <div class="cunit"><div class="num" id="days">--</div><div class="lbl">Days</div></div>
     <div class="cunit"><div class="num" id="hrs">--</div><div class="lbl">Hours</div></div>
@@ -970,16 +991,7 @@ document.querySelectorAll('.sidebar a').forEach(function(a){
 // Live date
 document.getElementById('live-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
 
-// Countdown
-function tick(){
-  var t=new Date('2026-12-26T08:00:00-08:00'),n=new Date(),d=t-n;
-  if(d<=0){['days','hrs','mins','secs'].forEach(function(id){document.getElementById(id).textContent='0';});return;}
-  document.getElementById('days').textContent=Math.floor(d/86400000);
-  document.getElementById('hrs').textContent=Math.floor((d%86400000)/3600000);
-  document.getElementById('mins').textContent=Math.floor((d%3600000)/60000);
-  document.getElementById('secs').textContent=Math.floor((d%60000)/1000);
-}
-tick();setInterval(tick,1000);
+
 </script>
 </body>
 </html>
